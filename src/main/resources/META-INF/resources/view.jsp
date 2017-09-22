@@ -9,20 +9,25 @@
 		if(jsonContent == "") {
 			jsonContent = '{"parameters":[]}';
 		}
-		appJSON = JSON.parse(jsonContent);
-		$('#json_name').val('');
-		$('#json_value').val('');
-		$('#json_type').val('text');
-		$('#json_display').val('');
-		$('#json_chosen').val('');
-		$('#json_maxlength').val('');
-		$('#tabs_content').val('');
-		var newJSON = JSON.stringify(appJSON, null ,2);
-		$('#content_textarea').val(newJSON);
+		try {
+			appJSON = JSON.parse(jsonContent);
+			$('#json_name').val('');
+			$('#json_value').val('');
+			$('#json_type').val('text');
+			$('#json_display').val('');
+			$('#json_chosen').val('');
+			$('#json_maxlength').val('');
+			$('#tabs_content').val('');
+			var newJSON = JSON.stringify(appJSON, null ,2);
+			$('#content_textarea').val(newJSON);
 
-		changeParameterList(JSON.parse($('#content_textarea').val()));
-		changeTabList(JSON.parse($('#content_textarea').val()));
-		changeToSelectedParameter();
+			changeParameterList(JSON.parse($('#content_textarea').val()));
+			changeTabList(JSON.parse($('#content_textarea').val()));
+			changeToSelectedParameter();
+			}
+		catch(err) {
+			alert(err);
+		}
 	}
 	function updateTabs() {
 		var T =	{"tabs": $('#tabs_content').val().split(',') };
@@ -69,6 +74,8 @@
 			$('#json_parameters').html(newParameterList);
 		}
 		else {
+			appJSON.parameters = [];
+			$('#content_textarea').val(JSON.stringify(appJSON, null ,2));
 			$('#json_parameters').html('')
 		}
 	}
@@ -156,9 +163,6 @@
 					newItem.value = $('#json_value').val();
 				}
 			}
-			else {
-				newItem.value = current_name;
-			}
 			if($('#json_tabs').val() != "---") {
 				var tab_position = -1;
 				for(var i=0; i<$('#json_tabs')[0].options.length; i++) {
@@ -175,7 +179,7 @@
 				newItem.display = $('#json_display').val();
 			}
 			else {
-				newItem.value = current_name;
+				newItem.display = current_name;
 			}
 			if($('#json_chosen').val() != "") {
 				newItem.choosen = $('#json_chosen').val();
@@ -183,7 +187,6 @@
 			if($('#json_maxlength').val() != "") {
 				newItem.choosen = $('#json_maxlength').val();
 			}
-
 
 			var test = false;
 			if(appJSON.parameters) {
