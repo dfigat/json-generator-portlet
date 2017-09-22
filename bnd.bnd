@@ -1,0 +1,6 @@
+Bundle-Name: json-generator
+Bundle-SymbolicName: pl.psnc.indigo.customisable.portlet.generator
+Bundle-Version: 1.0.0
+Export-Package: pl.psnc.indigo.customisable.portlet.generator.constants
+
+Include-Resource: @lib/snakeyaml-1.17.jar, @lib/jackson-annotations-2.9.0.jar, @lib/jackson-core-2.9.0.jar, @lib/jackson-databind-2.9.0.jar, @lib/jackson-dataformat-yaml-2.9.0.jar, @lib/gson-2.6.2.jar
