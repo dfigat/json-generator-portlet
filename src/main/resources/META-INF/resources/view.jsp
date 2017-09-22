@@ -209,8 +209,6 @@
 </script>
 
 <div class="container">
-	<h2>Form control: select</h2>
-	<p>The form below contains two dropdown menus (select lists):</p>
 	<div class="row">
 		<div class="col-sm-4">
 			<form>
@@ -270,7 +268,8 @@
 			<div align="center">
 				<button type="button" class="btn btn-danger" onClick="deleteParameter($('#json_parameters').val())">Delete parameter</button>
 			</div>
-
+			<br>
+			<br>
 			<div class="form-group">
 				<label for="comment">tab content</label>
 				<textarea class="form-control" rows="10" id="tabs_content"></textarea>
