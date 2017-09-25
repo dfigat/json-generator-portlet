@@ -24,7 +24,7 @@
 			changeParameterList(JSON.parse($('#content_textarea').val()));
 			changeTabList(JSON.parse($('#content_textarea').val()));
 			changeToSelectedParameter();
-			}
+		}
 		catch(err) {
 			alert(err);
 		}
@@ -209,6 +209,162 @@
 		}
 		readJSON();
 	}
+
+	function printJsonArray() {
+		jsonArr = [];
+		jsonTab = [];
+		if(appJSON.parameters) {
+			jsonArr = appJSON.parameters;
+		}
+		if(appJSON.tabs) {
+			jsonTab = appJSON.tabs;
+		}
+		
+		var i;
+		var k;
+		tabBegin = '<ul class="nav nav-tabs">'; 
+		var tabs = null;
+		var makeTabs = false;
+		var maxTab = 0;
+		if(jsonTab != null) {
+			maxTab = jsonTab.length;
+			tabs = new Array(maxTab);
+			makeTabs = true;
+			for(var i=0; i<maxTab; i++) {
+				if(i == 0) {
+					tabBegin += '<li class="active"><a data-toggle="tab" href="#menu'+i+'">'+jsonTab[i]+'</a></li>';
+				}
+				else {
+					tabBegin += '<li><a data-toggle="tab" href="#menu'+i+'">'+jsonTab[i]+'</a></li>';
+				}
+				tabs[i] = '';
+			}
+		}
+		tabBegin += '</ul>'; 
+		var out;
+		var globalOut='';
+		for(var i = 0; i < jsonArr.length; i++) {
+			out = '';
+			if(jsonArr[i].hasOwnProperty('display')){
+				out += '<p><b>' + jsonArr[i].display + '</b>';
+			}
+			else {
+				out += '<p><b>' + jsonArr[i].name + '</b>';
+			}
+			switch(jsonArr[i].type) {
+				case "password":
+					out += '<input type="password" maxlength="50" id="param_'+jsonArr[i].name
+					+'" class="form-control" value="' + jsonArr[i].value + '"/></br>';
+					break;
+				case "radio":    
+					out += '<div id="param_'+jsonArr[i].name+'" class="radio">';
+					for(k = 0; k < jsonArr[i].value.length; k++) {
+						out += '<label><input type="radio" name="'+jsonArr[i].name 
+						+'" value="'+jsonArr[i].value[k]+'"';
+						if(k == 0) {
+							out += ' checked';
+						}
+						out += '>'+jsonArr[i].value[k]+'</label></br>';
+					}
+					out += '</div>';
+					break;
+				case "list":
+					out += '<div class="form-group">';
+					out += '<select class="form-control" id="param_'+jsonArr[i].name+'">'
+					for(k = 0; k < jsonArr[i].value.length; k++) {
+						out += '<option>'+jsonArr[i].value[k]+'</option>'
+					}
+					out += '</select></div>';
+					break;
+				case "onedata":
+					out += '<div class="form-group">';
+					out += '<select id="param_'+jsonArr[i].name
+					+'" onchange="<portlet:namespace />updateOneDataTree(\'param_'+jsonArr[i].name+'\', \'param_tree_'+jsonArr[i].name+'\')" class="form-control">';
+					out += '<option value="">Select the OneZone</option>';
+					var onezone;
+					for(onezone in jsonArr[i].value) {
+						out += '<option value="' + jsonArr[i].value[onezone] + '">' + jsonArr[i].value[onezone] + '</option>';
+					} 
+					out += '</select></br>';
+					out += '<div id="param_tree_'+jsonArr[i].name+'"></div>';
+					out += '</div>';
+					break;
+				case "text":
+				default:
+					out += '<input type="text" id="param_'+jsonArr[i].name
+					+'" class="form-control" value="' + jsonArr[i].value + '"/></br>';
+					break;
+			}
+			out += '</p>';
+			if((jsonArr[i].tab != null) && makeTabs) {
+				var index = jsonArr[i].tab;
+				if(index < maxTab) {
+					tabs[index] += out;
+				}
+				else {
+					globalOut += out;
+				}
+			}
+			else {
+				globalOut += out;
+			}
+		}
+		if(jsonTab != null) {
+			out = '<div id="params-modal">';
+			out += globalOut;
+			out += tabBegin;
+			out += '<div class="tab-content">';
+			for(var i=0; i < jsonTab.length; i++) {
+				if(i == 0) {
+					out += '<div id="menu'+i+'" class="tab-pane fade in active">';
+				}
+				else {
+					out += '<div id="menu'+i+'" class="tab-pane fade">';
+				}
+				out += tabs[i];
+				out += '</div>';
+			}
+			out += '</div>';
+			out += '</div>';
+		}
+		else {
+			out = '<div id="params-modal">';
+			out += globalOut;
+			out += '</div>';
+		}
+		var myDiv = document.getElementById("modal-body");
+		myDiv.innerHTML = out;
+		for(var i = 0; i < jsonArr.length; i++) {
+			switch(jsonArr[i].type) {
+				case "password":
+				if(jsonArr[i].maxlength) {
+					$("#param_"+jsonArr[i].name).prop("maxLength",jsonArr[i].maxlength);
+				}
+				break;
+				case "password":
+				if(jsonArr[i].maxlength) {
+					$("#param_"+jsonArr[i].name).prop("maxLength",jsonArr[i].maxlength);
+				}
+				break;
+				case "list":
+				if(jsonArr[i].choosen) {
+					$("#param_"+jsonArr[i].name).val(jsonArr[i].choosen);
+				}
+				break;
+				case "radio":
+				if(jsonArr[i].choosen) {
+					var radio_length = $('input[name='+jsonArr[i].name+']').length;
+					for(var j=0; j<radio_length; j++) {
+						if($('input[name='+jsonArr[i].name+']')[j].defaultValue == jsonArr[i].choosen) {
+							$('input[name='+jsonArr[i].name+']')[j].checked=true;
+							break;
+						}
+					}
+				}
+				break;
+			}
+		}
+	}
 </script>
 
 <div class="container">
@@ -282,6 +438,12 @@
 				<button type="button" class="btn btn-success" onClick="updateTabs()">Update tabs</button>
 			</div>
 			<br>
+
+			<br>
+			<div align="center">
+				<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal" onclick="printJsonArray()">Generate !</button>
+			</div>
+			<br>
 		</div>
 		<div class="col-sm-4">
 			<div class="form-group">
@@ -296,6 +458,27 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="modal fade modal-hidden" role="dialog" id="myModal" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<center>
+						<h4 class="modal-title">Generated parameters list</h4>
+					</center>
+				</div>
+				<div class="modal-body" id="modal-body">
+				</div>
+				<div class="modal-footer">
+					<center>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</center>
+				</div>
+			</div>      
+		</div>
+	</div>
+
 </div>
 <script>
 	$("#json_parameters").change(function(){
